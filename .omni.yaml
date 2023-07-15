@@ -1,0 +1,18 @@
+up:
+  - go
+  - custom:
+      name: "Install ko container building dependency"
+      met?: "command -v 'ko'"
+      meet: "go install github.com/google/ko@latest"
+
+commands:
+  ko-build:
+    category: Build
+    desc: |
+      Build a Caddy container image with the tailscale module.
+    run: ko build ./cmd/caddy
+
+suggest_config:
+  path:
+    append__toappend:
+      - cmd
