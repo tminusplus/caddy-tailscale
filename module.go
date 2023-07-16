@@ -34,7 +34,7 @@ func init() {
 	caddy.RegisterNetwork("tailscale+tls", getTLSListener)
 }
 
-func getPlainListener(_ context.Context, network string, addr string, _ net.ListenConfig) (any, error) {
+func getPlainListener(_ context.Context, _ string, addr string, _ net.ListenConfig) (any, error) {
 	s, err := getServer("", addr)
 	if err != nil {
 		return nil, err
@@ -45,10 +45,10 @@ func getPlainListener(_ context.Context, network string, addr string, _ net.List
 		return nil, err
 	}
 
-	return s.Listen(network, ":"+port)
+	return s.Listen("", ":"+port)
 }
 
-func getTLSListener(_ context.Context, network string, addr string, _ net.ListenConfig) (any, error) {
+func getTLSListener(_ context.Context, _ string, addr string, _ net.ListenConfig) (any, error) {
 	s, err := getServer("", addr)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func getTLSListener(_ context.Context, network string, addr string, _ net.Listen
 		return nil, err
 	}
 
-	ln, err := s.Listen(network, ":"+port)
+	ln, err := s.Listen("", ":"+port)
 	if err != nil {
 		return nil, err
 	}
