@@ -23,6 +23,11 @@ Tailscale plugin included.
 xcaddy build master --with github.com/tailscale/caddy-tailscale
 ```
 
+Alternatively, you can build a caddy binary, similar to how xcaddy does, by running:
+```
+go build ./cmd/caddy
+```
+
 ## Caddy network listener
 
 New in Caddy 2.6, modules are able to provide custom network listeners. This

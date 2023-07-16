@@ -19,7 +19,6 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp/caddyauth"
 	"tailscale.com/client/tailscale"
 	"tailscale.com/tsnet"
-	"tailscale.com/util/strs"
 )
 
 var (
@@ -46,7 +45,7 @@ func getPlainListener(_ context.Context, network string, addr string, _ net.List
 		return nil, err
 	}
 
-	return s.Listen(network, ":"+port)
+	return s.Listen("", ":"+port)
 }
 
 func getTLSListener(_ context.Context, network string, addr string, _ net.ListenConfig) (any, error) {
@@ -60,7 +59,7 @@ func getTLSListener(_ context.Context, network string, addr string, _ net.Listen
 		return nil, err
 	}
 
-	ln, err := s.Listen(network, ":"+port)
+	ln, err := s.Listen("", ":"+port)
 	if err != nil {
 		return nil, err
 	}
@@ -193,8 +192,8 @@ func (ta TailscaleAuth) Authenticate(w http.ResponseWriter, r *http.Request) (ca
 
 	var tailnet string
 	if !info.Node.Hostinfo.ShareeNode() {
-		if s, found := strs.CutPrefix(info.Node.Name, info.Node.ComputedName+"."); found {
-			if s, found := strs.CutSuffix(s, ".beta.tailscale.net."); found {
+		if s, found := strings.CutPrefix(info.Node.Name, info.Node.ComputedName+"."); found {
+			if s, found := strings.CutSuffix(s, ".beta.tailscale.net."); found {
 				tailnet = s
 			}
 		}
