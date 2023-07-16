@@ -10,7 +10,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"sync"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
@@ -22,9 +21,7 @@ import (
 )
 
 var (
-	// servers maps hostnames to tsnet servers. It is protected by mu.
-	servers = make(map[string]*tsnet.Server)
-	mu      = sync.RWMutex{}
+	servers = caddy.NewUsagePool()
 )
 
 func init() {
@@ -32,6 +29,14 @@ func init() {
 	httpcaddyfile.RegisterHandlerDirective("tailscale_auth", parseCaddyfile)
 	caddy.RegisterNetwork("tailscale", getPlainListener)
 	caddy.RegisterNetwork("tailscale+tls", getTLSListener)
+}
+
+type TSNetWrapper struct {
+	*tsnet.Server
+}
+
+func (t *TSNetWrapper) Destruct() error {
+	return t.Close()
 }
 
 func getPlainListener(_ context.Context, _ string, addr string, _ net.ListenConfig) (any, error) {
@@ -81,16 +86,14 @@ func getTLSListener(_ context.Context, _ string, addr string, _ net.ListenConfig
 //
 // Auth keys can be provided in environment variables of the form TS_AUTHKEY_<HOST>.  If
 // no host is specified in the address, the environment variable TS_AUTHKEY will be used.
-func getServer(_, addr string) (*tsnet.Server, error) {
+func getServer(_, addr string) (*TSNetWrapper, error) {
 	host, _, err := net.SplitHostPort(addr)
 	if err != nil {
 		return nil, err
 	}
 
-	mu.Lock()
-	s, ok := servers[host]
-	if !ok {
-		s = &tsnet.Server{
+	s, _, err := servers.LoadOrNew(host, func() (caddy.Destructor, error) {
+		s := &tsnet.Server{
 			Hostname: host,
 			Logf: func(format string, args ...any) {
 				// TODO: parse out and always log authURL so you don't need
@@ -122,11 +125,10 @@ func getServer(_, addr string) (*tsnet.Server, error) {
 			}
 		}
 
-		servers[host] = s
-	}
-	defer mu.Unlock()
+		return &TSNetWrapper{s}, nil
+	})
 
-	return s, nil
+	return s.(*TSNetWrapper), nil
 }
 
 type TailscaleAuth struct {
