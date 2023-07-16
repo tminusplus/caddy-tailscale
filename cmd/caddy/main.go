@@ -1,3 +1,5 @@
+package main
+
 // Copyright 2015 Matthew Holt and The Caddy Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,14 +28,13 @@
 //
 // Or you can use xcaddy which does it all for you as a command:
 // https://github.com/caddyserver/xcaddy
-package main
 
 import (
 	caddycmd "github.com/caddyserver/caddy/v2/cmd"
 
 	// plug in Caddy modules here
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
-	_ "github.com/tailscale/caddy-tailscale"
+	_ "github.com/tminusplus/caddy-tailscale"
 )
 
 func main() {

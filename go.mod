@@ -1,8 +1,6 @@
-module github.com/tailscale/caddy-tailscale
+module github.com/tminusplus/caddy-tailscale
 
 go 1.20
-
-replace github.com/tailscale/caddy-tailscale => github.com/tminusplus/caddy-tailscale v0.0.0-20230715225308-75ed8388f149
 
 require (
 	github.com/caddyserver/caddy/v2 v2.7.0-beta.2
